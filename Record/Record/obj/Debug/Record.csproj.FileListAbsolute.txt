@@ -1,0 +1,7 @@
+D:\C#\Record\Record\bin\Debug\Record.exe.config
+D:\C#\Record\Record\bin\Debug\Record.exe
+D:\C#\Record\Record\bin\Debug\Record.pdb
+D:\C#\Record\Record\obj\Debug\Record.csprojResolveAssemblyReference.cache
+D:\C#\Record\Record\obj\Debug\Record.exe
+D:\C#\Record\Record\obj\Debug\Record.pdb
+D:\C#\Record\Record\bin\Debug\MyData.accdb
