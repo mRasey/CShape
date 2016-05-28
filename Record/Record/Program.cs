@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.OleDb;
 using System.Text.RegularExpressions;
+using System.Data.SqlClient;
 
 namespace Record
 {
     class Program
     {
         string path = @"Provider=Microsoft.ACE.OLEDB.12.0;Data source=MyData.accdb;Persist Security Info=False";
-        string SELECT_DATA = "select * from 学生信息";
+        static string SELECT_DATA = "select * from 学生信息";
         private OleDbConnection connect;//链接数据库对象
         private OleDbCommandBuilder command;
         private OleDbDataAdapter dataAdapter;//数据库结果链接对象
         private DataTable dataTable = new DataTable();//数据表
-        private DataSet dataSet = new DataSet();
 
         public Program()
         {
@@ -33,14 +33,14 @@ namespace Record
                 return;             
             }
             dataAdapter = new OleDbDataAdapter(SELECT_DATA, connect);
-            dataAdapter.Fill(dataTable);//填充数据表
-            dataAdapter.Fill(dataSet);
-            //dataTable = dataSet.Tables["学生信息"];
             command = new OleDbCommandBuilder(dataAdapter);
+            dataAdapter.Fill(dataTable);//填充数据表
         }
 
         public void insertInfo(string input)//插入信息
         {
+            dataAdapter.InsertCommand = command.GetInsertCommand();
+            dataAdapter.UpdateCommand = command.GetUpdateCommand();
             string[] inputs = Regex.Split(input, " ");
             if (inputs.Length != 8)
                 Console.WriteLine("错误的输入格式");
@@ -56,9 +56,6 @@ namespace Record
                 dr["成绩2"] = int.Parse(inputs[6]);
                 dr["成绩3"] = int.Parse(inputs[7]);
                 dataTable.Rows.Add(dr);
-                dataTable.AcceptChanges();
-                dataSet.Tables.Add(dataTable);
-                dataSet.AcceptChanges();
                 dataAdapter.Update(dataTable);
                 Console.WriteLine("输入成功");
             }
@@ -122,29 +119,37 @@ namespace Record
             Program p = new Program();
             while (true)
             {
-                string input = Console.ReadLine();
-                if (input.Equals("exit"))//按exit退出程序
-                    break;
-                else if (input.Equals("insert"))//insert插入信息
+                try
                 {
-                    p.insertInfo(Console.ReadLine());
-                }
-                else//读取信息
-                {
-                    string[] inputs = Regex.Split(input, " ");
-                    if (inputs[0].Equals("read"))
+                    string input = Console.ReadLine();
+                    if (input.Equals("exit"))//按exit退出程序
+                        break;
+                    else if (input.Equals("insert"))//insert插入信息
                     {
-                        if (inputs[1].Equals("id"))
-                            p.getInfoByID(int.Parse(inputs[2]));
-                        else if (inputs[1].Equals("email"))
-                            p.getInfoByEmail(inputs[2]);
-                        else if (inputs[1].Equals("name"))
-                            p.getInfoByName(inputs[2]);
+                        p.insertInfo(Console.ReadLine());
+                    }
+                    else//读取信息
+                    {
+                        string[] inputs = Regex.Split(input, " ");
+                        if (inputs[0].Equals("read"))
+                        {
+                            if (inputs[1].Equals("id"))
+                                p.getInfoByID(int.Parse(inputs[2]));
+                            else if (inputs[1].Equals("email"))
+                                p.getInfoByEmail(inputs[2]);
+                            else if (inputs[1].Equals("name"))
+                                p.getInfoByName(inputs[2]);
+                            else
+                                Console.WriteLine("错误的输入格式");
+                        }
                         else
                             Console.WriteLine("错误的输入格式");
                     }
-                    else
-                        Console.WriteLine("错误的输入格式");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("错误的输入格式");
+                    continue;
                 }
             }
             Console.WriteLine("程序结束");
